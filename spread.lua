@@ -13,6 +13,24 @@ function ABS(num)
     end
 end
 
+function def_mid(num)
+    x = getNumberOf('trades')
+    sum_1 = 0
+    sum_2 = 0
+
+    for i = 1, num*2, 1 do
+        str = getItem('trades', x - i)
+
+        if str.sec_code == sec_code_1 then
+            sum_1 = sum_1 + (str.price)/1000
+        else 
+            sum_2 = sum_2 + str.price
+        end
+    end 
+
+    return (sum_2 - sum_1)/num
+end
+
 
 account_real = 'A720z6d'
 account_test = 'SPBFUT000mz'
@@ -20,7 +38,7 @@ class_code   = 'SPBFUT'
 sec_code_1   = 'SiU3'
 sec_code_2   = 'USDRUBF'
 account      = account_test
-gap_sell     = 0.02
+gap_sell     = 0.01
 gap_buy      = 0.01
 n            = 1
 m            = 3
@@ -113,9 +131,8 @@ function main()
         if spread_sell >= high then
             file:write('серия продаж, ' .. currentTime .. ', \n')
             sell_spread(n)
+            sleep(1000)
             k = 1
-            sum = 0
-            sum = spread_sell
             file:write('sell, ' .. spread_sell..'\n')
 
             for i = 0, m - 2, 1 do
@@ -126,26 +143,25 @@ function main()
 
                 if spread_sell >= high then 
                     sell_spread(n)
-                    k = k +1
-                    sum = sum + spread_sell
+                    sleep(1000)
+                    k = k + 1
                     file:write('sell, ' .. spread_sell ..'\n')
                 end
             end
-
-            mid  = sum/k
+            sleep(5200)
+            mid  = def_mid(k)
             low  = mid - gap_buy
             high = mid + gap_sell
-            
+
             file:write('mid = ' .. mid .. ', low = ' .. low .. ', high = ' .. high .. '\n')
-            sleep(5200)
-            message('sell, ' .. spread_sell .. ' mid = ' .. mid .. ', low = ' .. low .. ', high = ' .. high)  
+            message('sell,  mid = ' .. mid .. ', low = ' .. low .. ', high = ' .. high)  
             
 
         elseif spread_buy <= low then
             file:write('серия покупок, ' .. currentTime .. ', \n')
             buy_spread(n)
+            sleep(1000)
             k = 1
-            sum = spread_buy
             file:write('buy, ' .. spread_buy ..'\n')
 
             for i = 0, m - 2, 1 do
@@ -156,20 +172,21 @@ function main()
 
                 if spread_buy <= low then 
                     buy_spread(n)
+                    sleep(1000)
                     k = k + 1
-                    sum = sum + spread_buy
+                    
                     file:write('buy, ' .. spread_buy ..'\n')
                 end
                 
             end
 
-            mid  = sum/k
+            sleep(5200)
+            mid  = def_mid(k)
             low  = mid - gap_buy
             high = mid + gap_sell
 
             file:write('mid = ' .. mid .. ', low = ' .. low .. ', high = ' .. high .. '\n')
-            sleep(5200)
-            message('buy, ' .. spread_buy .. ' mid = ' .. mid .. ', low = ' .. low .. ', high = ' .. high)  
+            message('buy, mid = ' .. mid .. ', low = ' .. low .. ', high = ' .. high)  
         end
     end
 end
